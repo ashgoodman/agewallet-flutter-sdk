@@ -1,0 +1,22 @@
+name: agewallet_flutter_sdk
+description: AgeWallet age verification SDK for Flutter applications. Implements OIDC/PKCE flow with secure storage.
+version: 1.0.0
+homepage: https://github.com/agewallet/agewallet-flutter-sdk
+repository: https://github.com/agewallet/agewallet-flutter-sdk
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_secure_storage: ^9.0.0
+  flutter_web_auth_2: ^3.0.0
+  http: ^1.1.0
+  crypto: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
