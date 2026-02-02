@@ -88,7 +88,9 @@ class AgeWalletCore {
 
     // Handle error response
     if (error != null) {
-      return _handleError(error, errorDescription, state);
+      print('[AgeWallet] Authorization error: $error - $errorDescription');
+      await storage.clearOidcState();
+      return false;
     }
 
     // Validate required parameters
@@ -148,41 +150,6 @@ class AgeWalletCore {
       await storage.clearOidcState();
       return false;
     }
-  }
-
-  /// Handle OIDC error response.
-  Future<bool> _handleError(
-      String error, String? description, String? state) async {
-    // Validate state even for errors
-    final storedOidc = await storage.getOidcState();
-    if (storedOidc == null || storedOidc.state != state) {
-      print('[AgeWallet] Error received with invalid state');
-      await storage.clearOidcState();
-      return false;
-    }
-
-    // Check for regional exemption
-    if (error == 'access_denied' &&
-        description == 'Region does not require verification') {
-      print('[AgeWallet] Region exempt - granting 24h verification');
-
-      // Grant synthetic 24-hour verification
-      final expiresAt =
-          DateTime.now().millisecondsSinceEpoch + (24 * 60 * 60 * 1000);
-
-      await storage.setVerification(VerificationState(
-        accessToken: 'region_exempt',
-        expiresAt: expiresAt,
-        isVerified: true,
-      ));
-
-      await storage.clearOidcState();
-      return true;
-    }
-
-    print('[AgeWallet] Authorization error: $error - $description');
-    await storage.clearOidcState();
-    return false;
   }
 
   /// Exchange authorization code for tokens.
