@@ -29,6 +29,9 @@ migrate_working_dir/
 /build/
 pubspec.lock
 
+# Auto-generated plugin registrants
+**/GeneratedPluginRegistrant.*
+
 # Coverage
 coverage/
 
