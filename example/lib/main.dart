@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agewallet_flutter_sdk/agewallet_flutter_sdk.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -37,18 +38,22 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _ageWallet = AgeWallet(
-      clientId: 'your-client-id',
+      clientId: '239472f9-3398-47ea-ad13-fe9502a0eb33',
       redirectUri: 'https://agewallet-sdk-demo.netlify.app/callback',
     );
     _checkVerification();
   }
 
   Future<void> _checkVerification() async {
-    final isVerified = await _ageWallet.isVerified();
-    setState(() {
-      _isVerified = isVerified;
-      _isLoading = false;
-    });
+    try {
+      final isVerified = await _ageWallet.isVerified();
+      setState(() {
+        _isVerified = isVerified;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _startVerification() async {

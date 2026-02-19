@@ -1,4 +1,4 @@
-package io.agewallet.sdk.demo.flutter_demo
+package io.agewallet.sdk.demo.flutter
 
 import io.flutter.embedding.android.FlutterActivity
 
