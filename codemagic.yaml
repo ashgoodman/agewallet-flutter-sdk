@@ -2,6 +2,8 @@ workflows:
   flutter-ios-demo:
     name: Flutter iOS Demo
     instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: AgeWallet ASC API Key
     environment:
       ios_signing:
         distribution_type: ad_hoc
