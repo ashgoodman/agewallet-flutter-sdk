@@ -14,11 +14,16 @@ workflows:
         script: |
           app-store-connect devices register --name "Ash's iPhone" --udid "00008150-001A0DE826B8401C" --ignore-registration-errors
           app-store-connect devices register --name "Brady's iPhone" --udid "00008130-0012590E21F0001C" --ignore-registration-errors
-      - name: Initialize code signing
+      - name: Enable Associated Domains capability
+        script: |
+          BUNDLE_RESOURCE_ID=$(app-store-connect bundle-ids list --bundle-id-identifier io.agewallet.sdk.demo.flutter --json | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['id'])")
+          app-store-connect bundle-ids enable-capabilities "$BUNDLE_RESOURCE_ID" --capability "Associated Domains"
+      - name: Set up code signing
         script: |
           app-store-connect fetch-signing-files "io.agewallet.sdk.demo.flutter" \
             --type IOS_APP_ADHOC \
             --create \
+            --delete-stale-profiles \
             --verbose
           keychain initialize
           app-store-connect certificates list \
@@ -26,17 +31,6 @@ workflows:
             --save \
             --verbose
           keychain add-certificates
-      - name: Enable Associated Domains capability
-        script: |
-          BUNDLE_RESOURCE_ID=$(app-store-connect bundle-ids list --bundle-id-identifier io.agewallet.sdk.demo.flutter --json | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['id'])")
-          app-store-connect bundle-ids enable-capabilities "$BUNDLE_RESOURCE_ID" --capability "Associated Domains"
-      - name: Refresh signing files
-        script: |
-          app-store-connect fetch-signing-files "io.agewallet.sdk.demo.flutter" \
-            --type IOS_APP_ADHOC \
-            --create \
-            --delete-stale-profiles \
-            --verbose
       - name: Get Flutter packages
         script: flutter pub get
         working_directory: example
