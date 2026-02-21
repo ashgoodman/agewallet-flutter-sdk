@@ -14,6 +14,9 @@ workflows:
         script: |
           app-store-connect devices register --name "Ash's iPhone" --udid "00008150-001A0DE826B8401C" --ignore-registration-errors
           app-store-connect devices register --name "Brady's iPhone" --udid "00008130-0012590E21F0001C" --ignore-registration-errors
+      - name: Register bundle ID
+        script: |
+          app-store-connect bundle-ids register --identifier io.agewallet.sdk.demo.flutter --name "AgeWallet Flutter Demo" --platform IOS --ignore-registration-errors
       - name: Enable Associated Domains capability
         script: |
           BUNDLE_RESOURCE_ID=$(app-store-connect bundle-ids list --bundle-id-identifier io.agewallet.sdk.demo.flutter --json | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['id'])")
