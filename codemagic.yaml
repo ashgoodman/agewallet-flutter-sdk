@@ -17,11 +17,9 @@ workflows:
       - name: Register bundle ID
         script: |
           set -x
-          echo "--- Attempting to create bundle ID ---"
-          app-store-connect bundle-ids create io.agewallet.sdk.demo.flutter "AgeWallet Flutter Demo" --platform IOS && echo "Created successfully" || echo "Create failed (may already exist)"
-          echo "--- Listing all bundle IDs to verify ---"
-          app-store-connect bundle-ids list --json
-          echo "--- Filtering for our bundle ID ---"
+          echo "--- Attempting to create bundle ID (will fail build if error) ---"
+          app-store-connect bundle-ids create io.agewallet.sdk.demo.flutter "AgeWallet Flutter Demo" --platform IOS
+          echo "--- Verifying bundle ID exists ---"
           app-store-connect bundle-ids list --bundle-id-identifier io.agewallet.sdk.demo.flutter --json
       - name: Enable Associated Domains capability
         script: |
