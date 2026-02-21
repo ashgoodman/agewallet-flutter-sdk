@@ -16,8 +16,8 @@ workflows:
           app-store-connect devices register --name "Brady's iPhone" --udid "00008130-0012590E21F0001C" --ignore-registration-errors
       - name: Register bundle ID
         script: |
-          set -x
-          echo "--- Attempting to create bundle ID (will fail build if error) ---"
+          set -ex
+          echo "--- Attempting to create bundle ID ---"
           app-store-connect bundle-ids create io.agewallet.sdk.demo.flutter "AgeWallet Flutter Demo" --platform IOS
           echo "--- Verifying bundle ID exists ---"
           app-store-connect bundle-ids list --bundle-id-identifier io.agewallet.sdk.demo.flutter --json
