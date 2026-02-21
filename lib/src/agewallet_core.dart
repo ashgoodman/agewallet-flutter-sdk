@@ -29,24 +29,22 @@ class AgeWalletCore {
     return state?.isVerified ?? false;
   }
 
-  /// Start the verification flow.
-  /// Opens the system browser to AgeWallet authorization page.
-  Future<void> startVerification() async {
-    // Generate PKCE parameters
+  /// Build the authorization URL for the verification flow.
+  /// Generates PKCE parameters, stores OIDC state, and returns the URL to open.
+  /// Use this on iOS with url_launcher; use startVerification() on Android.
+  Future<Uri> buildVerificationURL() async {
     final verifier = Security.generateVerifier();
     final challenge = Security.generateChallenge(verifier);
     final state = Security.generateState();
     final nonce = Security.generateNonce();
 
-    // Store OIDC state for callback validation
     await storage.setOidcState(OidcState(
       state: state,
       verifier: verifier,
       nonce: nonce,
     ));
 
-    // Build authorization URL
-    final authUrl = Uri.parse(config.authEndpoint).replace(
+    return Uri.parse(config.authEndpoint).replace(
       queryParameters: {
         'response_type': 'code',
         'client_id': config.clientId,
@@ -58,6 +56,13 @@ class AgeWalletCore {
         'nonce': nonce,
       },
     );
+  }
+
+  /// Start the verification flow.
+  /// Opens the system browser to AgeWallet authorization page.
+  /// Uses FlutterWebAuth2 — suitable for Android. On iOS use buildVerificationURL() instead.
+  Future<void> startVerification() async {
+    final authUrl = await buildVerificationURL();
 
     try {
       // Open browser and wait for callback

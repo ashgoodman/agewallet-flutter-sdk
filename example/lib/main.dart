@@ -1,4 +1,9 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:agewallet_flutter_sdk/agewallet_flutter_sdk.dart';
 
 void main() {
@@ -34,6 +39,9 @@ class _HomePageState extends State<HomePage> {
   bool _isVerified = false;
   bool _isLoading = true;
 
+  AppLinks? _appLinks;
+  StreamSubscription<Uri>? _linkSub;
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +50,22 @@ class _HomePageState extends State<HomePage> {
       redirectUri: 'https://agewallet-sdk-demo.netlify.app/callback',
     );
     _checkVerification();
+
+    if (Platform.isIOS) {
+      _appLinks = AppLinks();
+      _linkSub = _appLinks!.uriLinkStream.listen((uri) {
+        if (uri.host == 'agewallet-sdk-demo.netlify.app' &&
+            uri.path.startsWith('/callback')) {
+          _handleCallback(uri.toString());
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _linkSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _checkVerification() async {
@@ -59,8 +83,14 @@ class _HomePageState extends State<HomePage> {
   Future<void> _startVerification() async {
     setState(() => _isLoading = true);
     try {
-      await _ageWallet.startVerification();
-      await _checkVerification();
+      if (Platform.isIOS) {
+        final url = await _ageWallet.buildVerificationURL();
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+        // iOS: loading stays true until _handleCallback fires via Universal Link
+      } else {
+        await _ageWallet.startVerification();
+        await _checkVerification();
+      }
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
@@ -69,6 +99,12 @@ class _HomePageState extends State<HomePage> {
         );
       }
     }
+  }
+
+  Future<void> _handleCallback(String url) async {
+    setState(() => _isLoading = true);
+    await _ageWallet.handleCallback(url);
+    await _checkVerification();
   }
 
   Future<void> _clearVerification() async {

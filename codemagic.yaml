@@ -5,25 +5,43 @@ workflows:
     integrations:
       app_store_connect: AgeWallet ASC API Key
     environment:
-      ios_signing:
-        distribution_type: ad_hoc
-        bundle_identifier: io.agewallet.sdk.demo.flutter
+      groups:
+        - ios_signing
       flutter: stable
       xcode: latest
     scripts:
       - name: Register test devices
         script: |
-          app-store-connect devices register "Ash's iPhone" "00008150-001A0DE826B8401C"
+          app-store-connect devices register --name "Ash's iPhone" --udid "00008150-001A0DE826B8401C" --ignore-registration-errors
+      - name: Enable Associated Domains capability
+        script: |
+          BUNDLE_RESOURCE_ID=$(app-store-connect bundle-ids list --bundle-id-identifier io.agewallet.sdk.demo.flutter --json | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['id'])")
+          app-store-connect bundle-ids enable-capabilities "$BUNDLE_RESOURCE_ID" --capability "Associated Domains"
       - name: Get Flutter packages
         script: flutter pub get
         working_directory: example
       - name: Set up code signing
+        script: |
+          app-store-connect fetch-signing-files "io.agewallet.sdk.demo.flutter" \
+            --type IOS_APP_ADHOC \
+            --create \
+            --delete-stale-profiles \
+            --verbose
+          keychain initialize
+          app-store-connect certificates list \
+            --type IOS_DISTRIBUTION \
+            --save \
+            --verbose
+          keychain add-certificates
+      - name: Apply code signing to Xcode project
         script: xcode-project use-profiles
       - name: Build IPA
         script: |
           xcode-project build-ipa \
             --workspace example/ios/Runner.xcworkspace \
-            --scheme Runner
+            --scheme Runner \
+            --verbose \
+            --archive-flags="-destination 'generic/platform=iOS' COMPILER_INDEX_STORE_ENABLE=NO DEVELOPMENT_TEAM=F5T3W2C69Y CODE_SIGN_IDENTITY='Apple Distribution' CODE_SIGN_STYLE=Manual"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log

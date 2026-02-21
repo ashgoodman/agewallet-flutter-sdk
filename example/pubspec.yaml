@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  url_launcher: ^6.2.0
+  app_links: ^6.0.0
 
   # Reference parent SDK
   agewallet_flutter_sdk:

@@ -43,10 +43,17 @@ class AgeWallet {
   /// Returns `true` if verified and not expired, `false` otherwise.
   Future<bool> isVerified() => _core.isVerified();
 
+  /// Build the authorization URL for the verification flow.
+  ///
+  /// Use this on iOS with url_launcher to open Safari, then handle the
+  /// Universal Link callback via app_links. On Android, use [startVerification].
+  Future<Uri> buildVerificationURL() => _core.buildVerificationURL();
+
   /// Start the verification flow.
   ///
   /// Opens the system browser to the AgeWallet authorization page.
   /// The callback is handled automatically when control returns to your app.
+  /// On Android only. On iOS use [buildVerificationURL] instead.
   Future<void> startVerification() => _core.startVerification();
 
   /// Manually handle a callback URL.
