@@ -40,6 +40,9 @@ workflows:
       - name: Get Flutter packages
         script: flutter pub get
         working_directory: example
+      - name: Install CocoaPods
+        script: pod install
+        working_directory: example/ios
       - name: Apply code signing to Xcode project
         script: xcode-project use-profiles
       - name: Build IPA
