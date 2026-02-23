@@ -45,5 +45,16 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>io.agewallet.sdk.demo.flutter</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>agewallet-sdk-demo</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
