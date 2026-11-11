@@ -20,3 +20,4 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_web_auth_2_platform_interface: ^4.0.0

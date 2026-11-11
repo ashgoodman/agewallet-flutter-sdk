@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer run on the same branch or pull request cancels the older one.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests
+    # Runs on the organisation repo only, never on personal forks.
+    if: github.repository == 'AgeWallet-Integrations/agewallet-flutter-sdk'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.6
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Get demo app packages
+        working-directory: example
+        run: flutter pub get
+
+      # Covers lib/, test/ and example/
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test the SDK
+        run: flutter test --coverage
+
+      # Line coverage of lib/ from coverage/lcov.info (LF and LH totals of the files the tests load),
+      # written to the run summary
+      - name: Coverage summary
+        run: |
+          awk -F: '
+            /^SF:/ { files++ }
+            /^LF:/ { found += $2 }
+            /^LH:/ { hit += $2 }
+            END {
+              printf "### Line coverage\n\n%d of %d lines (%.1f%%) in %d files of lib/\n",
+                hit, found, found ? 100 * hit / found : 0, files
+            }' coverage/lcov.info | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Test the demo app
+        working-directory: example
+        run: flutter test
